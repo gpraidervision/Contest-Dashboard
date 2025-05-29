@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>RaiderVision Contest Code</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f2f6fa;
+      color: #003057;
+    }
+    header {
+      background: #003057;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: white;
+    }
+    header img {
+      height: 50px;
+    }
+    main {
+      text-align: center;
+      margin: 4rem auto;
+      max-width: 600px;
+    }
+    h2 {
+      color: #003057;
+    }
+    input, button {
+      width: 90%;
+      padding: 10px;
+      margin: 10px auto;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+      display: block;
+    }
+    button {
+      background: #003057;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #005288;
+    }
+    .admin-link {
+      display: block;
+      text-align: center;
+      margin-top: 1rem;
+      color: #003057;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="logo.png" alt="RaiderVision Logo" />
+    <div>Submission Portal</div>
+  </header>
+  <main>
+    <h2>Enter Contest Code</h2>
+    <input id="codeInput" placeholder="Contest Code" />
+    <button onclick="validateCode()">Continue</button>
+    <div id="infoBox"></div>
+    <a class="admin-link" href="admin.html">Admin Login</a>
+  </main>
+  <script>
+    async function validateCode() {
+      const code = document.getElementById("codeInput").value.trim();
+      const res = await fetch("https://script.google.com/macros/s/AKfycbz7V1eDb949rjodtlYtZRPJcTCWrTb2YHylrwZiWIrvWNEnNagqQBzJ5o9iSX0vVwNm/exec?code=" + code);
+      const data = await res.json();
+      const infoBox = document.getElementById("infoBox");
+
+      if (data.error) {
+        infoBox.innerHTML = "<p style='color:red;'>Invalid code. Please try again.</p>";
+        return;
+      }
+
+      localStorage.setItem("contestCode", code);
+      localStorage.setItem("school", data.school);
+      localStorage.setItem("category", data.category);
+      localStorage.setItem("name", data.name);
+      localStorage.setItem("email", data.email);
+
+      infoBox.innerHTML = `<p>School: <b>${data.school}</b><br>Category: <b>${data.category}</b><br>Name: <b>${data.name}</b></p>`;
+      setTimeout(() => window.location.href = "upload.html", 1200);
+    }
+  </script>
+</body>
+</html>
