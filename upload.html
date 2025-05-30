@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Upload Submission - RaiderVision</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f2f6fa;
+      color: #003057;
+    }
+    header {
+      background: #003057;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: white;
+    }
+    header img {
+      height: 50px;
+    }
+    main {
+      text-align: center;
+      margin: 4rem auto;
+      max-width: 600px;
+    }
+    form {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+    input, button {
+      width: 90%;
+      padding: 10px;
+      margin: 10px auto;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+      display: block;
+    }
+    button {
+      background: #003057;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #005288;
+    }
+    progress {
+      margin-top: 20px;
+      width: 90%;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="logo.png" alt="RaiderVision Logo" />
+    <div>Submit Your Entry</div>
+  </header>
+  <main>
+    <form id="uploadForm">
+      <h2>Upload Your File</h2>
+      <input type="file" name="file" required />
+      <button type="submit">Submit</button>
+      <progress id="progressBar" value="0" max="100" style="display:none;"></progress>
+      <p id="response"></p>
+    </form>
+  </main>
+  <script>
+    document.getElementById("uploadForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const form = this;
+      const fileInput = form.querySelector("input[type='file']");
+      const file = fileInput.files[0];
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const progressBar = document.getElementById("progressBar");
+      const responseText = document.getElementById("response");
+      progressBar.style.display = "block";
+      progressBar.value = 0;
+
+      try {
+        const reader = new FileReader();
+        reader.onloadstart = () => progressBar.value = 10;
+        reader.onprogress = (event) => {
+          if (event.lengthComputable) {
+            const percent = (event.loaded / event.total) * 100;
+            progressBar.value = 10 + percent * 0.7; // simulate 10–80%
+          }
+        };
+        reader.onloadend = async () => {
+          progressBar.value = 90;
+
+          const response = await fetch("https://script.google.com/macros/s/AKfycbxNEme9vVMrBJYcxMt88iYLNlhtmQ_exsgG4hljzBRn4Nn-JmD7d1GKNWkBzMHd0qq_ww/exec", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (response.ok) {
+            progressBar.value = 100;
+            responseText.innerText = "✅ Upload successful!";
+          } else {
+            responseText.innerText = "⚠️ Upload failed. Please try again.";
+          }
+          progressBar.style.display = "none";
+        };
+
+        reader.onerror = () => {
+          progressBar.style.display = "none";
+          responseText.innerText = "❌ File read error.";
+        };
+
+        reader.readAsArrayBuffer(file);
+      } catch (err) {
+        progressBar.style.display = "none";
+        responseText.innerText = "❌ Upload failed: " + err.message;
+      }
+    });
+  </script>
+</body>
+</html>
